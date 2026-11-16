@@ -1,0 +1,20 @@
+{
+  "name": "floorplan-to-3d",
+  "version": "1.0.0",
+  "description": "Turn a floor-plan image with written dimensions into a verified 2D overlay (stops for approval), then an interactive three.js 3D model with openings, furniture, walk view and a measuring tool.",
+  "author": {
+    "name": "avinoamaj",
+    "url": "https://github.com/avinoamaj"
+  },
+  "homepage": "https://github.com/avinoamaj/floorplan-to-3d",
+  "repository": "https://github.com/avinoamaj/floorplan-to-3d",
+  "license": "Apache-2.0",
+  "keywords": [
+    "floor plan",
+    "3d",
+    "three.js",
+    "architecture",
+    "measurement"
+  ],
+  "skills": "./skills/"
+}
