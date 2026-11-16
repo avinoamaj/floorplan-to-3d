@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: metric-plan-flags-mismatches
+expected_outcome: |
+  Stage 1 only. Unit cm. Detects that 780 and 630 do not equal the centreline chains 400+350 and 350+250 (they look like outside-face overall dimensions with 30 cm outer walls) and reports it without changing written values;
+  flags the smudged bottom label as unreadable and asks; models the living-kitchen passage as an opening without a door; includes the furniture.
+context:
+  scaffold_script: place-files.sh
