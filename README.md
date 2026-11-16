@@ -26,6 +26,9 @@ Versions are pinned by git tag. The skill clones `v1`.
 ### Claude
 Save the skill from the claude.ai skill card (or upload this folder as a skill). Without the bundled folder, its SKILL.md clones branch `v1` of this repo on first use.
 
+### ChatGPT (desktop or web)
+Download `dist/floorplan-to-3d.zip`, then in ChatGPT: **Skills → Create → Upload from your computer**. The desktop app and the web app don't sync skills, so upload it in each place you use.
+
 ### OpenAI Codex (CLI, IDE extension, desktop app)
 The self-contained Codex version is in `codex/floorplan-to-3d/` (same toolkit, Codex-specific SKILL.md and `agents/openai.yaml`).
 
@@ -46,4 +49,4 @@ Restart Codex. Then attach or point to a plan image and ask for a 3D model, or t
 Optional, for screenshot self-checks: `pip install playwright && playwright install chromium`.
 
 ## Maintaining
-Shared code lives in `scripts/`, `assets/`, `references/`. Codex-only files live in `codex-src/`. After any change run `tools/sync_codex.sh` and commit, then move the `v1` branch when the change is ready for both skills.
+Shared code lives in `scripts/`, `assets/`, `references/`. Codex-only files live in `codex-src/`. After any change run `tools/sync_codex.sh`, rebuild the ZIP (`cd codex && zip -qr ../dist/floorplan-to-3d.zip floorplan-to-3d`) and commit, then move the `v1` branch when the change is ready for both skills.

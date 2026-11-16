@@ -3,7 +3,7 @@ name: floorplan-to-3d
 description: Turn a floor-plan image or PDF with written dimensions into a precise 2D verification overlay (stage 1, then stop for approval) and then an interactive three.js 3D model (stage 2) with real wall openings, furniture, orbit/top/walk views and a measuring tool. Use when the user gives a floor plan, room plan or apartment layout (תוכנית דירה, תוכנית חדר, שרטוט) and wants it verified, measured, modelled in 3D or walked through.
 ---
 
-# Floor plan → verified 2D overlay → 3D model (Codex)
+# Floor plan → verified 2D overlay → 3D model (Codex / ChatGPT)
 
 Two stages with a hard stop between them. Precision and repeatability come from one rule: **all geometry lives in one `model.json`, and every page is generated from it by `scripts/fp.py`** (bundled in this skill folder). Never hand-write page HTML and never do unit conversions in your head. Your job is to read the plan correctly and fill `model.json`. The scripts measure, check, render and freeze it.
 
@@ -55,7 +55,7 @@ Keep a plan or checklist of these steps.
    - A failure caused by a wrong mapping or a typo is yours to fix.
    - A failure caused by the plan itself stays in. It gets a red mark and a question.
 7. **Build.** `$FP build1 model.json --image plan.png -o stage1.html`. If Playwright is installed, run `$FP shoot stage1.html -o s1.png --modes both` and view the screenshot. Check that the overlay sits on the original walls and that no red note collides with another (`--full` also shows the questions and tables). Rebuild only if something is wrong.
-8. **Deliver and STOP.** Tell the user where `stage1.html` is and that they can open it in any browser (on macOS: `open stage1.html`). Then, in the user's language:
+8. **Deliver and STOP.** Give the user `stage1.html`: as a downloadable file if your environment offers that (ChatGPT), otherwise its path, to open in any browser (on macOS: `open stage1.html`). Then, in the user's language:
    - one line on what the page shows;
    - the open questions, numbered and short, each with the assumption you made meanwhile.
 
@@ -78,7 +78,7 @@ Keep a plan or checklist of these steps.
    - `$FP shoot test3d.html -o s2.png --modes orbit,top,walk`
 
    View one or two screenshots. Never hand the test build to the user: its import paths only work through `shoot`'s local server.
-3. **Deliver** the path of `model3d.html` and a short summary:
+3. **Deliver** `model3d.html` the same way (download or path) with a short summary:
    - what the page offers: orbit, top and walk views (walk at 160 cm eye height), the measuring tool with snapping, toggles for ceiling, dimensions, room names, furniture and door leaves, and live height inputs;
    - which values are defaults;
    - one sanity measurement, e.g. inside width = overall − one outer wall thickness.
