@@ -17,10 +17,14 @@ Two stages with a hard stop between them. Precision and repeatability come from 
 - Stage 2 uses exactly the approved stage-1 model, with no "improvements". `build2` enforces this with a hash.
 
 ## Setup (once per session)
+The toolkit (scripts, page templates, references) lives next to this file when the skill is installed as a package; otherwise fetch the pinned release from GitHub:
 ```bash
-SK=<this skill's folder>; FP="python3 $SK/scripts/fp.py"
-test -f $SK/scripts/fp.py || { git clone --depth 1 --branch v1 https://github.com/avinoamaj/floorplan-to-3d /tmp/fp3d && SK=/tmp/fp3d; FP="python3 $SK/scripts/fp.py"; }
-python3 -c "import PIL, numpy" || pip install --break-system-packages pillow numpy
+SK=<folder of this SKILL.md>
+if [ ! -f "$SK/scripts/fp.py" ]; then
+  SK=/tmp/fp3d; [ -f $SK/scripts/fp.py ] || git clone -q --depth 1 --branch v1 https://github.com/avinoamaj/floorplan-to-3d $SK
+fi
+FP="python3 $SK/scripts/fp.py"
+python3 -c "import PIL, numpy" 2>/dev/null || pip install -q --break-system-packages pillow numpy scipy
 ```
 Needs PIL and numpy (scipy recommended). Work in a fresh directory and copy the plan there. Only `scripts/`, `assets/` and `references/` matter at run time; ignore `evals/` (tests for the skill itself). For a PDF, render page 1 to PNG at about 150–200 dpi first (`pdftoppm -png -r 170`). Do not open `fp.py` or the templates: `$FP <cmd> -h` documents every command.
 
