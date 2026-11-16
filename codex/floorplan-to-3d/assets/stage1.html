@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1b1b1b;--muted:#666;--line:#e3e0da;--bg:#f7f6f3;--orange:#e07000;--red:#d0021b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Heebo,system-ui,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5}
+  header{padding:18px 24px 6px} h1{font-size:20px;margin:0 0 2px} .sub{color:var(--muted);font-size:13.5px}
+  .toolbar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 24px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+  .seg{display:inline-flex;border:1px solid #cfcac1;border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:#fff;padding:6px 13px;font:inherit;cursor:pointer;color:var(--ink)}
+  .seg button+button{border-inline-start:1px solid #cfcac1} .seg button.on{background:var(--ink);color:#fff}
+  label.ctl{display:inline-flex;align-items:center;gap:7px;font-size:14px;white-space:nowrap}
+  input[type=range]{width:120px} .val{font-variant-numeric:tabular-nums;min-width:38px;display:inline-block;color:var(--muted)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-inline-end:5px}
+  .wrap{padding:14px 24px 0} .viewport{overflow:auto;border:1px solid var(--line);background:#fff;border-radius:8px;max-height:82vh}
+  .stage{position:relative;width:100%;direction:ltr} .stage img{display:block;width:100%;height:auto;user-select:none}
+  .stage svg{position:absolute;inset:0;width:100%;height:100%}
+  .stage.mode-plan img{visibility:hidden} .stage.mode-src svg{display:none}
+  section{padding:6px 24px 4px;max-width:1200px} h2{font-size:16px;margin:22px 0 8px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;background:#fff;border:1px solid var(--line)}
+  th,td{text-align:start;padding:5px 9px;border-bottom:1px solid var(--line);vertical-align:top} th{background:#efede8;font-weight:500}
+  td.num{font-variant-numeric:tabular-nums;direction:ltr;text-align:end}
+  .ok{color:var(--ink)} .est{color:var(--orange);font-weight:500} .bad{color:var(--red);font-weight:500}
+  ol.q{background:#fff;border:1px solid var(--line);border-inline-start:4px solid var(--red);border-radius:6px;padding:12px 34px;margin:0} ol.q li{margin:0 0 8px}
+  .none{color:var(--muted)} details{margin-top:6px} summary{cursor:pointer;color:var(--muted);font-size:14px} .note{font-size:13px;color:var(--muted)}
+  footer{height:40px}
+</style>
+</head>
+<body>
+<header><h1 id="h1"></h1><div class="sub" id="sub"></div></header>
+<div class="toolbar">
+  <div class="seg" id="modes"><button data-m="src"></button><button data-m="plan"></button><button data-m="both" class="on"></button></div>
+  <label class="ctl"><span data-t="opacity"></span> <input type="range" id="op" min="0" max="100" value="80"><span class="val" id="opv">80%</span></label>
+  <label class="ctl"><span data-t="zoom"></span> <input type="range" id="zm" min="100" max="400" step="25" value="100"><span class="val" id="zmv">100%</span></label>
+  <div class="seg" id="units"><button data-u="plan" class="on"></button><button data-u="cm"></button></div>
+  <label class="ctl"><input type="checkbox" id="cDims" checked> <span data-t="dims"></span></label>
+  <label class="ctl"><input type="checkbox" id="cFix" checked> <span data-t="fixtures"></span></label>
+  <label class="ctl"><input type="checkbox" id="cFurn" checked> <span data-t="furniture"></span></label>
+  <div class="legend"><span><i class="sw" style="background:#1b1b1b"></i><span data-t="lgWritten"></span></span>
+    <span><i class="sw" style="background:var(--orange)"></i><span data-t="lgEst"></span></span>
+    <span><i class="sw" style="background:var(--red)"></i><span data-t="lgRed"></span></span></div>
+</div>
+<div class="wrap"><div class="viewport"><div class="stage mode-both" id="stage">
+  <img id="src" alt="" src="__IMG__">
+  <svg id="svg" viewBox="0 0 __IMGW__ __IMGH__" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"></svg>
+</div></div></div>
+<section>
+  <h2 data-t="questions"></h2><ol class="q" id="questions"></ol>
+  <p class="note" id="notes"></p>
+  <h2 data-t="checks"></h2>
+  <table id="tChecks"><thead><tr><th data-t="check"></th><th data-t="calc"></th><th data-t="result"></th></tr></thead><tbody></tbody></table>
+  <details open><summary data-t="wallsT"></summary><table id="tWalls"><thead><tr><th>ID</th><th data-t="desc"></th><th data-t="from"></th><th data-t="to"></th><th data-t="len"></th><th data-t="thick"></th></tr></thead><tbody></tbody></table></details>
+  <details open><summary data-t="openT"></summary><table id="tOpen"><thead><tr><th>ID</th><th data-t="type"></th><th data-t="wall"></th><th data-t="from"></th><th data-t="to"></th><th data-t="width"></th><th data-t="swing"></th><th data-t="src"></th></tr></thead><tbody></tbody></table></details>
+  <details><summary data-t="itemsT"></summary><table id="tItems"><thead><tr><th>ID</th><th data-t="type"></th><th data-t="desc"></th><th data-t="size"></th><th data-t="src"></th></tr></thead><tbody></tbody></table></details>
+  <p class="note" id="reg"></p>
+</section>
+<footer></footer>
+<script>
+const R = __DATA__;
+const LANG = R.meta.lang === 'en' ? 'en' : 'he';
+const T = {
+ he:{src:'מקור',plan:'שרטוט',both:'שניהם',opacity:'שקיפות השרטוט',zoom:'זום',unitPlan:'מידות כמו בתוכנית',unitCm:'בס"מ',dims:'קווי מידה',fixtures:'אלמנטים קבועים',furniture:'ריהוט',
+  lgWritten:'ממידה כתובה',lgEst:'הערכה לפי קנה מידה',lgRed:'אי-ודאות / סטייה',questions:'שאלות פתוחות',noQ:'אין שאלות פתוחות.',checks:'בדיקות',check:'בדיקה',calc:'חישוב',result:'תוצאה',
+  wallsT:'קירות (קווי מרכז, ס"מ)',openT:'פתחים (ס"מ לאורך הקיר, מנקודה a)',itemsT:'אלמנטים קבועים וריהוט (ס"מ)',desc:'תיאור',from:'מ-',to:'עד',len:'אורך',thick:'עובי',type:'סוג',wall:'קיר',width:'רוחב',swing:'ציר / פתיחה',src:'מקור',size:'מידות',
+  okT:'✓ תקין',badT:'✗ סטייה',written:'מידה כתובה',estimate:'הערכה',uncertain:'לא ודאי',door:'דלת',double_door:'דלת כפולה',window:'חלון',opening:'פתח',hingeA:'ציר בקצה a',hingeB:'ציר בקצה b',into:'נפתחת לתוך',
+  title:'שלב 1 – שרטוט אימות דו-מימדי',sub:u=>`יחידת התוכנית: ${u}. המודל בס"מ. קו מקווקו שחור = קו מרכז קיר. ריחוף מעל אלמנט מציג פרטים.`,
+  ref:{centerline:'מרכז קיר',interior:'פנים הקיר',exterior:'חוץ הקיר'},refL:'בסיס המידות',
+  regT:(s,r)=>`יישור השכבה: ${s.toFixed(4)} פיקסל לס"מ, סטייה מקסימלית ${r.toFixed(2)} פיקסל. היישור משמש רק להצבת השכבה ולהערכות בכתום, לא לקביעת מידה כתובה.`},
+ en:{src:'Source',plan:'Drawing',both:'Both',opacity:'Overlay opacity',zoom:'Zoom',unitPlan:'Units as on plan',unitCm:'cm',dims:'Dimensions',fixtures:'Fixed elements',furniture:'Furniture',
+  lgWritten:'From a written dimension',lgEst:'Estimated from scale',lgRed:'Uncertain / mismatch',questions:'Open questions',noQ:'No open questions.',checks:'Checks',check:'Check',calc:'Calculation',result:'Result',
+  wallsT:'Walls (centrelines, cm)',openT:'Openings (cm along wall from end a)',itemsT:'Fixed elements and furniture (cm)',desc:'Description',from:'From',to:'To',len:'Length',thick:'Thickness',type:'Type',wall:'Wall',width:'Width',swing:'Hinge / swing',src:'Source',size:'Size',
+  okT:'✓ OK',badT:'✗ mismatch',written:'written',estimate:'estimate',uncertain:'uncertain',door:'Door',double_door:'Double door',window:'Window',opening:'Opening',hingeA:'hinge at end a',hingeB:'hinge at end b',into:'opens into',
+  title:'Stage 1 – 2D verification drawing',sub:u=>`Plan unit: ${u}. Model in cm. Dashed black = wall centreline. Hover an element for details.`,
+  ref:{centerline:'wall centreline',interior:'inside face',exterior:'outside face'},refL:'Dimension reference',
+  regT:(s,r)=>`Overlay registration: ${s.toFixed(4)} px per cm, max residual ${r.toFixed(2)} px. Used only to place the overlay and for orange estimates, never for a written dimension.`}
+}[LANG];
+document.documentElement.lang = LANG; document.documentElement.dir = LANG==='he'?'rtl':'ltr';
+document.querySelectorAll('[data-t]').forEach(e=>e.textContent=T[e.dataset.t]);
+document.querySelector('[data-m=src]').textContent=T.src; document.querySelector('[data-m=plan]').textContent=T.plan; document.querySelector('[data-m=both]').textContent=T.both;
+document.querySelector('[data-u=plan]').textContent=T.unitPlan; document.querySelector('[data-u=cm]').textContent=T.unitCm;
+document.getElementById('h1').textContent=T.title;
+document.getElementById('sub').textContent=T.sub(R.meta.unit)+' '+T.refL+': '+(T.ref[R.meta.dim_reference]||R.meta.dim_reference)+'.';
+
+const NS='http://www.w3.org/2000/svg', svg=document.getElementById('svg'), S=R.reg.s;
+const C={ink:'#111',or:'#e07000',red:'#d0021b'};
+const NSS={'vector-effect':'non-scaling-stroke'};
+function el(tag,at,par){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);if(par)par.appendChild(e);return e;}
+function tip(e,t){el('title',{},e).textContent=t;return e;}
+const add=(p,q,k=1)=>[p[0]+q[0]*k,p[1]+q[1]*k];
+const sub=(p,q)=>[p[0]-q[0],p[1]-q[1]], dot=(p,q)=>p[0]*q[0]+p[1]*q[1];
+const W={}; for(const w of R.walls){const L=w.len,u=[(w.b[0]-w.a[0])/L,(w.b[1]-w.a[1])/L];w.u=u;w.n=[-u[1],u[0]];W[w.id]=w;}
+const at=(w,p,o)=>add(add(w.a,w.u,p),w.n,o);                       // point on wall: along p, offset o
+const pts=a=>a.map(p=>p.join(',')).join(' ');
+const stCls=s=>(s==='written'||s==='derived')?'ok':s==='uncertain'?'bad':'est';
+// keep numbers, units and arrows in reading order inside RTL text
+const iso=t=>LANG==='he'?String(t).replace(/[0-9A-Za-z(][0-9A-Za-z'"\s.,×xX*\-−–→←?:\/+=%()·|]*[0-9A-Za-z'"?)%]|[0-9A-Za-z]/g,m=>'\u2066'+m+'\u2069'):t;
+const isoH=s=>String(s).split(/(<[^>]+>)/).map(p=>p.startsWith('<')?p:iso(p)).join('');
+const stTxt=s=>T[s]||s;
+let units='plan';
+const fs=13/S;     // ~13 px text in model units
+
+function sideVec(sd){return {'+x':[1,0],'-x':[-1,0],'+y':[0,1],'-y':[0,-1]}[sd]||null;}
+function rectOf(it){const [x0,y0,x1,y1]=it.rect;return {x0,y0,x1,y1,w:x1-x0,h:y1-y0,cx:(x0+x1)/2,cy:(y0+y1)/2};}
+// strip of a rect on a given side, thickness t (cm)
+function strip(r,sd,t){if(sd==='+x')return [r.x1-t,r.y0,r.x1,r.y1];if(sd==='-x')return [r.x0,r.y0,r.x0+t,r.y1];if(sd==='+y')return [r.x0,r.y1-t,r.x1,r.y1];return [r.x0,r.y0,r.x1,r.y0+t];}
+
+function render(){
+  svg.innerHTML='';
+  el('rect',{x:0,y:0,width:'100%',height:'100%',fill:'#fff',class:'planbg'},svg);
+  const g=el('g',{transform:`translate(${R.reg.ox} ${R.reg.oy}) scale(${S})`},svg);
+  // walls: body = thickness (estimate → orange unless written), centreline black
+  const gw=el('g',{opacity:.55},g);
+  for(const w of R.walls){
+    const h=w.t/2, ops=R.openings.filter(o=>o.wall===w.id).sort((a,b)=>a.from-b.from);
+    let cur=-h; const pieces=[];
+    for(const o of ops){pieces.push([cur,o.from]);cur=o.to;} pieces.push([cur,w.len+h]);
+    const col=(w.t_status==='written'||w.t_status==='derived')?C.ink:C.or;
+    for(const [p0,p1] of pieces) if(p1>p0) tip(el('polygon',{points:pts([at(w,p0,-h),at(w,p1,-h),at(w,p1,h),at(w,p0,h)]),fill:col},gw),
+      `${w.id} ${w.desc||''}\n${T.len} ${w.len.toFixed(1)} cm · ${T.thick} ${w.t} cm (${stTxt(w.t_status)})`);
+  }
+  for(const w of R.walls) el('line',{x1:w.a[0],y1:w.a[1],x2:w.b[0],y2:w.b[1],stroke:w.status==='written'?C.ink:C.red,'stroke-width':1,'stroke-dasharray':'6 4',...NSS},g);
+  // openings
+  for(const o of R.openings){
+    const w=W[o.wall],h=w.t/2,col=o.status==='written'?C.ink:o.status==='uncertain'?C.red:C.or;
+    const og=el('g',{stroke:col,fill:'none','stroke-width':1.6,...NSS},g);
+    tip(og,`${o.id} ${o.desc||''}\n${o.from}–${o.to} cm · ${T.width} ${o.width} cm (${stTxt(o.status)})`);
+    if(o.kind==='window'){
+      el('polygon',{points:pts([at(w,o.from,-h),at(w,o.to,-h),at(w,o.to,h),at(w,o.from,h)]),fill:'#fff'},og);
+      for(const k of [-1/3,1/3]){const p=at(w,o.from,h*k),q=at(w,o.to,h*k);el('line',{x1:p[0],y1:p[1],x2:q[0],y2:q[1]},og);}
+    } else {
+      for(const p of [o.from,o.to]){const A=at(w,p,-h),B=at(w,p,h);el('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1]},og);}
+      if(o.kind==='opening') continue;
+      const s=o.side, face=s*h, wd=o.to-o.from;
+      const leaves=o.kind==='double_door'?[{hp:o.from,sp:o.from+wd/2,r:wd/2},{hp:o.to,sp:o.to-wd/2,r:wd/2}]
+        :[{hp:o.hinge==='a'?o.from:o.to,sp:o.hinge==='a'?o.to:o.from,r:wd}];
+      for(const L of leaves){
+        const H=at(w,L.hp,face), P=add(H,w.n,s*L.r), Q=at(w,L.sp,face);
+        el('line',{x1:H[0],y1:H[1],x2:P[0],y2:P[1],'stroke-width':2.2},og);
+        const cr=(P[0]-H[0])*(Q[1]-H[1])-(P[1]-H[1])*(Q[0]-H[0]);
+        el('path',{d:`M${P[0]} ${P[1]} A ${L.r} ${L.r} 0 0 ${cr>0?1:0} ${Q[0]} ${Q[1]}`,'stroke-width':1},og);
+      }
+    }
+  }
+  // items
+  const gFix=el('g',{id:'gFix'},g), gFurn=el('g',{id:'gFurn'},g);
+  for(const it of R.items) drawItem(it, it.cat==='fixture'?gFix:gFurn);
+  // rooms
+  const gr=el('g',{fill:C.ink,'font-family':'Arial,Helvetica,sans-serif','font-weight':700,'text-anchor':'middle'},g);
+  for(const r of R.rooms){ if(!r.show_label) continue;
+    tip(el('text',{x:r.lab[0],y:r.lab[1]+fs*.35,'font-size':fs},gr),`${r.name} · ${r.area_m2} m²`).textContent=r.name;
+    if(r.label){const p2=r.lab2||[r.lab[0],r.lab[1]+fs*1.3]; el('text',{x:p2[0],y:p2[1]+fs*.35,'font-size':fs},gr).textContent=r.label;} }
+  // dimensions
+  const gd=el('g',{id:'gDims'},g);
+  for(const d of R.dims){
+    const col=d.status==='uncertain'?C.red:C.ink, dg=el('g',{stroke:col,fill:col,'stroke-width':1,...NSS},gd);
+    const L=Math.hypot(d.b[0]-d.a[0],d.b[1]-d.a[1]), u=[(d.b[0]-d.a[0])/L,(d.b[1]-d.a[1])/L], n=[-u[1],u[0]];
+    const off=dot(sub(d.lab,d.a),n)+7/S, tk=4/S;
+    const A=add(d.draw_a||d.a,n,off), B=add(d.draw_b||d.b,n,off);
+    el('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1]},dg);
+    for(const P of [A,B]){el('line',{x1:P[0]-(u[0]-n[0])*tk,y1:P[1]-(u[1]-n[1])*tk,x2:P[0]+(u[0]-n[0])*tk,y2:P[1]+(u[1]-n[1])*tk,'stroke-width':1.6},dg);
+      el('line',{x1:P[0]-n[0]*tk*1.5,y1:P[1]-n[1]*tk*1.5,x2:P[0]+n[0]*tk*1.5,y2:P[1]+n[1]*tk*1.5},dg);}
+    let ang=Math.atan2(u[1],u[0])*180/Math.PI; if(ang>=90)ang-=180; if(ang<-90)ang+=180; if(Math.abs(ang-90)<1e-6)ang=-90;
+    const txt=units==='plan'||d.value_cm==null?d.label:d.value_cm.toFixed(1);
+    tip(el('text',{x:d.lab[0],y:d.lab[1]+fs*.35,'font-size':fs,'text-anchor':'middle',transform:`rotate(${ang} ${d.lab[0]} ${d.lab[1]})`,stroke:'#fff','stroke-width':3,'paint-order':'stroke','font-family':'Arial,sans-serif'},dg),
+      `${d.label}${d.value_cm==null?'':' = '+d.value_cm.toFixed(2)+' cm'}${d.note?'\n⚠ '+d.note:''}`).textContent=txt;
+    if(d.status==='uncertain'&&d.note) redLabel(gd,d.note_at||[d.lab[0]+fs*1.2,d.lab[1]-fs*.8],d.note);
+  }
+  // red flags
+  for(const f of R.flags){
+    if(f.box) el('rect',{x:Math.min(f.box[0],f.box[2]),y:Math.min(f.box[1],f.box[3]),width:Math.abs(f.box[2]-f.box[0]),height:Math.abs(f.box[3]-f.box[1]),fill:'none',stroke:C.red,'stroke-width':2,'stroke-dasharray':'5 3',...NSS},g);
+    redLabel(g,f.at,f.text);
+  }
+  applyToggles();
+}
+function redLabel(par,p,txt){ // text grows away from p in reading direction; wraps at ~40 chars
+  const lines=[];let cur='';for(const w of ('⚠ '+txt).split(' ')){if((cur+' '+w).trim().length>40&&cur){lines.push(cur);cur=w;}else cur=(cur+' '+w).trim();} if(cur)lines.push(cur);
+  lines.forEach((t,i)=>{t=iso(t);el('text',{x:p[0],y:p[1]+i*fs*1.25,'font-size':fs*.95,fill:C.red,stroke:'#fff','stroke-width':3,'paint-order':'stroke','font-family':'Heebo,Arial,sans-serif','font-weight':700,'text-anchor':LANG==='he'?'end':'start',direction:LANG==='he'?'rtl':'ltr'},par).textContent=t;});
+}
+function drawItem(it,par){
+  const col=it.status==='written'?C.ink:C.or;
+  const ig=el('g',{stroke:col,fill:'none','stroke-width':1.2,...NSS},par);
+  let desc=`${it.id} ${it.name||it.type} (${stTxt(it.status)})`;
+  if(it.rect){const r=rectOf(it); desc+=`\n${r.w.toFixed(0)}×${r.h.toFixed(0)} cm`;
+    el('rect',{x:r.x0,y:r.y0,width:r.w,height:r.h},ig);
+    const sd=it.head||it.back||it.tank||it.front||it.wall;
+    const t=it.type, th=Math.min(r.w,r.h);
+    if(sd&&['bed','chair','sofa','armchair','toilet','vanity','wardrobe','fridge','washer','tv_unit','dresser','bookshelf','nightstand','desk'].includes(t)){
+      const s=strip(r,sd,t==='bed'?8:t==='toilet'?Math.min(18,th*.35):Math.min(15,th*.25)); el('rect',{x:s[0],y:s[1],width:s[2]-s[0],height:s[3]-s[1],'stroke-width':2.2},ig);}
+    if(t==='bed'&&it.pillows) for(const p of it.pillows) el('rect',{x:p[0],y:p[1],width:p[2]-p[0],height:p[3]-p[1]},ig);
+    if(t==='shower_tray'){el('line',{x1:r.x0,y1:r.y0,x2:r.x1,y2:r.y1},ig);el('line',{x1:r.x1,y1:r.y0,x2:r.x0,y2:r.y1},ig);}
+    if(['kitchen_sink','vanity','toilet','bathtub'].includes(t)) el('ellipse',{cx:r.cx,cy:r.cy,rx:r.w*.3,ry:r.h*.3},ig);
+    if(t==='stove'){const n=(it.burners||2), cols=n>2?2:n, rows=n>2?2:1; for(let i=0;i<cols;i++)for(let j=0;j<rows;j++) el('circle',{cx:r.x0+r.w*(i+.5)/cols,cy:r.y0+r.h*(j+.5)/rows,r:Math.min(r.w/cols,r.h/rows)*.3},ig);}
+    if(it.tv){const v=it.tv; el('rect',{x:v[0],y:v[1],width:v[2]-v[0],height:v[3]-v[1],'stroke-width':2},ig);}
+  }
+  if(it.poly){ el('polygon',{points:pts(it.poly)},ig);
+    if(it.back_edge){const [i,j]=it.back_edge;el('line',{x1:it.poly[i][0],y1:it.poly[i][1],x2:it.poly[j][0],y2:it.poly[j][1],'stroke-width':3},ig);} }
+  if(it.center){ el('circle',{cx:it.center[0],cy:it.center[1],r:it.d/2},ig); desc+=`\nØ ${it.d.toFixed(0)} cm`; }
+  tip(ig,desc);
+}
+
+// controls
+const stage=document.getElementById('stage');
+document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+function setMode(m){document.querySelectorAll('#modes button').forEach(x=>x.classList.toggle('on',x.dataset.m===m));stage.className='stage mode-'+m;applyToggles();}
+document.querySelectorAll('#units button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#units button').forEach(x=>x.classList.toggle('on',x===b));units=b.dataset.u;render();});
+const op=document.getElementById('op'), zm=document.getElementById('zm');
+op.oninput=()=>{document.getElementById('opv').textContent=op.value+'%';applyToggles();};
+zm.oninput=()=>{document.getElementById('zmv').textContent=zm.value+'%';stage.style.width=zm.value+'%';};
+for(const id of ['cDims','cFix','cFurn']) document.getElementById(id).onchange=applyToggles;
+function applyToggles(){
+  const plan=stage.classList.contains('mode-plan');
+  svg.style.opacity=plan?1:op.value/100;
+  const bg=svg.querySelector('.planbg'); if(bg) bg.style.display=plan?'':'none';
+  for(const [id,g] of [['cDims','gDims'],['cFix','gFix'],['cFurn','gFurn']]){const e=document.getElementById(g); if(e) e.style.display=document.getElementById(id).checked?'':'none';}
+}
+// tables
+function tables(){
+  const q=document.getElementById('questions');
+  q.innerHTML=R.questions.length?R.questions.map(x=>`<li>${isoH(x)}</li>`).join(''):`<li class="none">${T.noQ}</li>`;
+  document.getElementById('notes').innerHTML=(R.notes||[]).map(isoH).join('<br>');
+  document.querySelector('#tChecks tbody').innerHTML=R.checks.map(c=>`<tr><td>${iso(c.name)}</td><td class="num" dir="ltr">${c.expr}</td><td class="${c.ok?'ok':'bad'}">${c.ok?T.okT:T.badT}${c.detail?' — '+iso(c.detail):''}</td></tr>`).join('');
+  const f=v=>v.map(x=>x.toFixed(1)).join(', ');
+  document.querySelector('#tWalls tbody').innerHTML=R.walls.map(w=>`<tr><td>${w.id}</td><td>${w.desc||''}</td><td class="num">${f(w.a)}</td><td class="num">${f(w.b)}</td><td class="num ${stCls(w.status)}">${w.len.toFixed(1)}</td><td class="num ${stCls(w.t_status)}">${w.t}</td></tr>`).join('');
+  document.querySelector('#tOpen tbody').innerHTML=R.openings.map(o=>{
+    const sw=o.kind==='window'||o.kind==='opening'?'—':(o.kind==='door'?(o.hinge==='a'?T.hingeA:T.hingeB)+' · ':'')+T.into+' '+(typeof o.swing_into==='string'?o.swing_into:JSON.stringify(o.swing_into));
+    const c=stCls(o.status);
+    return `<tr><td>${o.id}</td><td>${T[o.kind]||o.kind}${o.desc?' – '+o.desc:''}</td><td>${o.wall}</td><td class="num ${c}">${o.from}</td><td class="num ${c}">${o.to}</td><td class="num ${c}">${o.width}</td><td>${sw}</td><td class="${c}">${stTxt(o.status)}</td></tr>`;}).join('');
+  document.querySelector('#tItems tbody').innerHTML=R.items.map(it=>{let sz='';
+    if(it.rect){const r=rectOf(it);sz=`${r.w.toFixed(0)} × ${r.h.toFixed(0)}`;} else if(it.center) sz=`Ø ${it.d.toFixed(0)}`; else if(it.poly) sz='poly';
+    return `<tr><td>${it.id}</td><td>${it.type}</td><td>${it.name||''}</td><td class="num">${sz}</td><td class="${stCls(it.status)}">${stTxt(it.status)}</td></tr>`;}).join('');
+  document.getElementById('reg').textContent=T.regT(R.reg.s,R.reg.max_residual_px);
+}
+render(); tables();
+window.__fp={setMode};
+</script>
+</body>
+</html>

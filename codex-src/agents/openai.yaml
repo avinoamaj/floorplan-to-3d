@@ -1,0 +1,5 @@
+interface:
+  display_name: "Floor plan to 3D"
+  short_description: "Verified 2D overlay of a floor plan, then an interactive three.js 3D model"
+policy:
+  allow_implicit_invocation: true

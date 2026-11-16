@@ -681,8 +681,8 @@ def cmd_build2(a):
         die('heights missing: ' + ', '.join(miss) + '. Ask the user; if they do not answer, set the defaults '
             '(260/210/90/210) with heights.source.<key> = "default".')
     R = resolve(m)
-    if a.three_local:
-        base = str(Path(a.three_local).resolve())
+    if a.three_local:   # absolute URL paths from the filesystem root (works with `shoot`, which serves the root)
+        bp = Path(a.three_local).resolve(); base = '/' + bp.relative_to(bp.anchor).as_posix()
         three, addons = base + '/build/three.module.js', base + '/examples/jsm/'
     else:
         three = f'https://cdn.jsdelivr.net/npm/three@{THREE_VER}/build/three.module.js'
@@ -698,17 +698,19 @@ def cmd_shoot(a):
     page = Path(a.page).resolve()
     class Quiet(http.server.SimpleHTTPRequestHandler):
         def log_message(self, *x): pass
-    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory='/'))
+    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=page.anchor))
     port = srv.server_address[1]
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     errs = []
     with sync_playwright() as p:
-        chrome = next((c for c in ('/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser') if Path(c).exists()), None)
+        chrome = next((c for c in ('/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser',
+                                   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+                                   r'C:\Program Files\Google\Chrome\Application\chrome.exe') if Path(c).exists()), None)
         b = p.chromium.launch(executable_path=chrome, args=['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'])
         pg = b.new_page(viewport={'width': a.width, 'height': a.height})
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: errs.append(m.text) if m.type == 'error' and 'favicon' not in m.text else None)
-        pg.goto(f'http://127.0.0.1:{port}{page}'); pg.wait_for_timeout(1800)
+        pg.goto(f'http://127.0.0.1:{port}/{page.relative_to(page.anchor).as_posix()}'); pg.wait_for_timeout(1800)
         sh = pg.evaluate("document.getElementById('stage') ? document.getElementById('stage').scrollHeight : 0")
         if sh:   # stage-1 page: show the whole drawing (default: drawing only; --full: drawing + questions + tables)
             pg.evaluate("document.querySelector('.viewport').style.maxHeight='none'")

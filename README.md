@@ -20,3 +20,30 @@ evals/                    test cases for the skill itself
 Requirements: Python 3 with Pillow and NumPy (SciPy recommended). Playwright + Chrome are optional, used for screenshots.
 
 Versions are pinned by git tag. The skill clones `v1`.
+
+## Install
+
+### Claude
+Save the skill from the claude.ai skill card (or upload this folder as a skill). Without the bundled folder, its SKILL.md clones branch `v1` of this repo on first use.
+
+### OpenAI Codex (CLI, IDE extension, desktop app)
+The self-contained Codex version is in `codex/floorplan-to-3d/` (same toolkit, Codex-specific SKILL.md and `agents/openai.yaml`).
+
+macOS / Linux:
+```bash
+git clone --depth 1 --branch v1 https://github.com/avinoamaj/floorplan-to-3d /tmp/fp3d
+mkdir -p ~/.agents/skills && cp -r /tmp/fp3d/codex/floorplan-to-3d ~/.agents/skills/
+pip install pillow numpy scipy          # once
+```
+Windows (PowerShell):
+```powershell
+git clone --depth 1 --branch v1 https://github.com/avinoamaj/floorplan-to-3d $env:TEMP\fp3d
+New-Item -ItemType Directory -Force "$HOME\.agents\skills" | Out-Null
+Copy-Item -Recurse "$env:TEMP\fp3d\codex\floorplan-to-3d" "$HOME\.agents\skills\"
+py -m pip install pillow numpy scipy
+```
+Restart Codex. Then attach or point to a plan image and ask for a 3D model, or type `$floorplan-to-3d`. Run `/skills` to check it's listed; older Codex versions read `~/.codex/skills/` instead, so copy the folder there if it doesn't show up.
+Optional, for screenshot self-checks: `pip install playwright && playwright install chromium`.
+
+## Maintaining
+Shared code lives in `scripts/`, `assets/`, `references/`. Codex-only files live in `codex-src/`. After any change run `tools/sync_codex.sh` and commit, then move the `v1` branch when the change is ready for both skills.
