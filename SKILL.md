@@ -28,14 +28,14 @@ python3 -c "import PIL, numpy" 2>/dev/null || pip install -q --break-system-pack
 ```
 Needs PIL and numpy (scipy recommended). Work in a fresh directory and copy the plan there. Only `scripts/`, `assets/` and `references/` matter at run time; ignore `evals/` (tests for the skill itself). For a PDF, render page 1 to PNG at about 150–200 dpi first (`pdftoppm -png -r 170`). Do not open `fp.py` or the templates: `$FP <cmd> -h` documents every command.
 
-Before writing model.json for the first time, read `references/method.md` (how to read plans and the pitfalls) and `references/model_schema.md` (exact fields).
+Before writing model.json for the first time, read `$SK/references/method.md` (how to read plans and the pitfalls) and `$SK/references/model_schema.md` (exact fields).
 
 ## Stage 1: 2D verification drawing
 Track these steps in a task list.
 
 1. **Read the plan.** Look at the image. Note the unit (`'`/`"` = ft/in, or m/cm/mm), every written dimension with its position, room labels, doors, windows and furniture. Treat a bracketed placeholder in the user's message (e.g. a ceiling height written as `[e.g. 260 cm…]`) as not given.
 2. **Find the walls.** `$FP info plan.png` gives the wall colour. Then `$FP walls plan.png --rgb R,G,B -o walls.json` lists every wall line (H = horizontal, V = vertical) with centre, thickness and gaps.
-3. **Register.** Map wall lines to grid coordinates from the written dimensions, in `pairs.json`: `{"unit":"ft","walls":"walls.json","x":[[0,"V1"],[8,"V2"],…],"y":[[0,"H1"],…]}`. Run `$FP fit pairs.json -o reg.json`. The residual must be ≤ 1.5 px. `reference_test` tells you which dimension reference the drawing follows.
+3. **Register.** Map wall lines to grid coordinates from the written dimensions, in `pairs.json`: `{"unit":"ft","walls":"walls.json","x":[[0,"V1"],[8,"V2"],…],"y":[[0,"H1"],…]}`. Run `$FP fit pairs.json -o reg.json`. The residual must be ≤ 1.5 px. `reference_test` tells you which dimension reference the drawing follows; `thickness_estimate_cm` is the wall-thickness estimate to use.
 4. **Measure the estimates.** Openings come from the `walls` gaps. For furniture and fixtures use `$FP bbox plan.png --region x1,y1,x2,y2` (`--mode green` for plants). Only when something is ambiguous, look closer with `$FP crop plan.png --region … -o c.png` and Read the crop.
 5. **Write `model.json`** following the schema: walls, rooms, openings, dims (every written number, verbatim), chains, items, flags, questions, notes. Leave out `heights` and `approval`.
 6. **Check.** `$FP check model.json`. A failure caused by a wrong mapping or a typo is yours to fix. A failure caused by the plan itself stays in, and gets a red mark and a question.
