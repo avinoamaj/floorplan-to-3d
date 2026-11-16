@@ -1,6 +1,6 @@
 {
   "name": "floorplan-to-3d",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Turn a floor-plan image with written dimensions into a verified 2D overlay (stops for approval), then an interactive three.js 3D model with openings, furniture, walk view and a measuring tool.",
   "author": {
     "name": "avinoamaj",
@@ -16,5 +16,22 @@
     "architecture",
     "measurement"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Floor plan to 3D",
+    "shortDescription": "Verify a floor plan's dimensions, then get an interactive 3D model",
+    "longDescription": "Give it a floor-plan image with written dimensions. Stage 1 builds a 2D verification drawing on top of the original (black = written dimension, orange = estimated from scale, red = uncertain or failed check) with open questions, and stops for your approval. Stage 2 builds an interactive three.js model from exactly the approved data: walls with real door and window openings, furniture, orbit / top / walk views and a click-to-measure tool.",
+    "developerName": "avinoamaj",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/avinoamaj/floorplan-to-3d",
+    "defaultPrompt": [
+      "Turn this floor plan into an interactive 3D model",
+      "Check the dimensions of this floor plan"
+    ],
+    "brandColor": "#E07000"
+  }
 }
